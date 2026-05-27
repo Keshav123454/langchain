@@ -45,6 +45,19 @@ def _validate_path(path: Path) -> None:
         raise ValueError(msg)
 
 
+    BASE_DIR = Path.cwd().resolve()
+    print(f"BASE_DIR: {BASE_DIR}")
+    resolved_path = (BASE_DIR / path).resolve()
+
+    if not resolved_path.is_relative_to(BASE_DIR):
+        msg = (
+            f"Unsafe path detected: '{path}' resolves outside the allowed "
+            f"base directory '{BASE_DIR}'."
+        )
+        raise ValueError(msg)
+
+
+
 @deprecated(
     since="1.2.21",
     removal="2.0.0",
@@ -230,6 +243,7 @@ def load_prompt(
     Raises:
         RuntimeError: If the path is a LangChainHub path.
     """
+    if not allow_dangerous_paths: _validate_path(Path(path))
     if isinstance(path, str) and path.startswith("lc://"):
         msg = (
             "Loading from the deprecated github-based Hub is no longer supported. "
