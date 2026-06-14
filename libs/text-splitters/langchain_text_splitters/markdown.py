@@ -157,10 +157,11 @@ class MarkdownHeaderTextSplitter:
         initial_metadata: dict[str, str] = {}
 
         in_code_block = False
-
         opening_fence = ""
+        line_num = 0
 
         for line in lines:
+            line_num += 1
             stripped_line = line.strip()
             # Remove all non-printable characters from the string, keeping only visible
             # text.
@@ -232,10 +233,14 @@ class MarkdownHeaderTextSplitter:
                         header_stack.append(header)
                         # Update initial_metadata with the current header
                         initial_metadata[name] = header["data"]
+                        if self.include_line_ranges:
+                            initial_metadata["start_with"] = str(line_num)
 
                     # Add the previous line to the lines_with_metadata
                     # only if current_content is not empty
                     if current_content:
+                        if self.include_line_ranges:
+                            current_metadata["end_with"] = str(line_num)
                         lines_with_metadata.append(
                             {
                                 "content": "\n".join(current_content),
@@ -252,6 +257,8 @@ class MarkdownHeaderTextSplitter:
                 if stripped_line:
                     current_content.append(stripped_line)
                 elif current_content:
+                    if self.include_line_ranges:
+                        current_metadata["end_with"] = str(line_num)
                     lines_with_metadata.append(
                         {
                             "content": "\n".join(current_content),
@@ -263,13 +270,15 @@ class MarkdownHeaderTextSplitter:
             current_metadata = initial_metadata.copy()
 
         if current_content:
+            if self.include_line_ranges:
+                current_metadata["end_with"] = str(line_num)
+
             lines_with_metadata.append(
                 {
                     "content": "\n".join(current_content),
                     "metadata": current_metadata,
                 }
             )
-
         # lines_with_metadata has each line with associated header metadata
         # aggregate these into chunks based on common metadata
         if not self.return_each_line:
