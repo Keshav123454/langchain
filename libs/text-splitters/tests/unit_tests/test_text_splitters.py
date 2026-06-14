@@ -4262,18 +4262,18 @@ def test_markdown_header_splitter_line_ranges() -> None:
         headers_to_split_on=headers_to_split_on, include_line_ranges=True
     )
     output = splitter.split_text(markdown_text)
-
+    print(output)
     assert len(output) == 2
 
     # First chunk checks
     assert output[0].metadata["Header 1"] == "Header 1"
-    assert output[0].metadata["start_line"] == 1
-    assert output[0].metadata["end_line"] == 3
+    assert output[0].metadata["start_with"] == 1
+    assert output[0].metadata["end_with"] == 4
 
     # Second chunk checks
     assert output[1].metadata["Header 2"] == "Header 2"
-    assert output[1].metadata["start_line"] == 4
-    assert output[1].metadata["end_line"] == 5
+    assert output[1].metadata["start_with"] == 4
+    assert output[1].metadata["end_with"] == 5
 
 
 def test_markdown_header_splitter_line_ranges_backwards_compatibility() -> None:

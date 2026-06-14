@@ -236,13 +236,13 @@ class MarkdownHeaderTextSplitter:
                         # Update initial_metadata with the current header
                         initial_metadata[name] = header["data"]
                         if self.include_line_ranges:
-                            initial_metadata["start_with"] = str(line_num)
+                            initial_metadata["start_with"] = line_num
 
                     # Add the previous line to the lines_with_metadata
                     # only if current_content is not empty
                     if current_content:
                         if self.include_line_ranges:
-                            current_metadata["end_with"] = str(line_num)
+                            current_metadata["end_with"] = line_num 
                         lines_with_metadata.append(
                             {
                                 "content": "\n".join(current_content),
@@ -260,7 +260,7 @@ class MarkdownHeaderTextSplitter:
                     current_content.append(stripped_line)
                 elif current_content:
                     if self.include_line_ranges:
-                        current_metadata["end_with"] = str(line_num)
+                        current_metadata["end_with"] = line_num
                     lines_with_metadata.append(
                         {
                             "content": "\n".join(current_content),
@@ -273,7 +273,7 @@ class MarkdownHeaderTextSplitter:
 
         if current_content:
             if self.include_line_ranges:
-                current_metadata["end_with"] = str(line_num)
+                current_metadata["end_with"] = line_num 
 
             lines_with_metadata.append(
                 {
