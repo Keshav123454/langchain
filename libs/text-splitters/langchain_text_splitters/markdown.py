@@ -29,6 +29,7 @@ class MarkdownHeaderTextSplitter:
         return_each_line: bool = False,  # noqa: FBT001,FBT002
         strip_headers: bool = True,  # noqa: FBT001,FBT002
         custom_header_patterns: dict[str, int] | None = None,
+        include_line_ranges: bool = False
     ) -> None:
         """Create a new `MarkdownHeaderTextSplitter`.
 
@@ -53,6 +54,7 @@ class MarkdownHeaderTextSplitter:
         self.strip_headers = strip_headers
         # Custom header patterns with their levels
         self.custom_header_patterns = custom_header_patterns or {}
+        self.include_line_ranges = include_line_ranges
 
     def _is_custom_header(self, line: str, sep: str) -> bool:
         """Check if line matches a custom header pattern.

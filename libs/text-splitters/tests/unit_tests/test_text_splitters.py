@@ -4243,3 +4243,48 @@ def test_character_text_splitter_chunk_size_effect(
         keep_separator=False,
     )
     assert splitter.split_text(text) == expected
+
+
+def test_markdown_header_splitter_line_ranges() -> None:
+    """Test that source line ranges are tracked correctly when opt-in flag is True."""
+    markdown_text = (
+        "# Header 1\n"  # Line 1
+        "This is line 2.\n"  # Line 2
+        "This is line 3.\n"  # Line 3
+        "## Header 2\n"  # Line 4
+        "This is line 5."  # Line 5
+    )
+
+    headers_to_split_on = [("#", "Header 1"), ("##", "Header 2")]
+
+    # 1. Test with feature turned ON
+    splitter = MarkdownHeaderTextSplitter(
+        headers_to_split_on=headers_to_split_on, include_line_ranges=True
+    )
+    output = splitter.split_text(markdown_text)
+
+    assert len(output) == 2
+
+    # First chunk checks
+    assert output[0].metadata["Header 1"] == "Header 1"
+    assert output[0].metadata["start_line"] == 1
+    assert output[0].metadata["end_line"] == 3
+
+    # Second chunk checks
+    assert output[1].metadata["Header 2"] == "Header 2"
+    assert output[1].metadata["start_line"] == 4
+    assert output[1].metadata["end_line"] == 5
+
+
+def test_markdown_header_splitter_line_ranges_backwards_compatibility() -> None:
+    """Test that start_line and end_line are NOT added when flag is False."""
+    markdown_text = "# Header 1\nContent line 2."
+    headers_to_split_on = [("#", "Header 1")]
+
+    # Default behavior (flag is False)
+    splitter = MarkdownHeaderTextSplitter(headers_to_split_on=headers_to_split_on)
+    output = splitter.split_text(markdown_text)
+
+    # Verify that the keys do not exist in metadata (preserves old behavior)
+    assert "start_line" not in output[0].metadata
+    assert "end_line" not in output[0].metadata
